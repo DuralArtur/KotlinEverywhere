@@ -1,0 +1,104 @@
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version "1.4-M1"
+}
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+}
+group 'com.example'
+version '0.0.1'
+
+apply plugin: 'maven-publish'
+def kotlinPluginId = 'org.jetbrains.kotlin.multiplatform'
+final hasPlugin = project.getPlugins().hasPlugin(kotlinPluginId);
+if (hasPlugin) {
+    final Plugin plugin = project.getPlugins().getPlugin(kotlinPluginId)
+    println 'Plugin already applied - version ' + plugin.properties['kotlinPluginVersion']
+} else {
+    apply plugin: "org.jetbrains.kotlin.multiplatform"
+}
+
+kotlin {
+    jvm()
+    ios() {
+        binaries.framework {
+            export "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+        }
+    }
+    /*    TODO
+        js {
+            browser {
+            }
+            nodejs {
+            }
+        }
+        macosX64("macos")
+     For ARM, should be changed to iosArm32 or iosArm64
+     For Linux, should be changed to e.g. linuxX64
+     For MacOS, should be changed to e.g. macosX64
+     For Windows, should be changed to e.g. mingwX64
+    */
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${coroutines_version}"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+                implementation "io.ktor:ktor-client-core:$ktor_version"
+                implementation "io.ktor:ktor-client-serialization:$ktor_version"
+                implementation "io.ktor:ktor-client-logging:$ktor_version"
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation kotlin('test-common')
+                implementation kotlin('test-annotations-common')
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib-jdk8')
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${coroutines_version}"
+                api "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+                api "io.ktor:ktor-client-core-jvm:$ktor_version"
+                api "io.ktor:ktor-client-serialization-jvm:$ktor_version"
+                implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation kotlin('test')
+                implementation kotlin('test-junit')
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutines_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+                implementation "io.ktor:ktor-client-ios:$ktor_version"
+                implementation "io.ktor:ktor-client-serialization-native:$ktor_version"
+                implementation "io.ktor:ktor-client-logging-native:$ktor_version"
+            }
+        }
+        iosTest {
+        }
+/*        TODO:
+        jsMain {
+            dependencies {
+                implementation kotlin('stdlib-js')
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin('test-js')
+            }
+        }
+        macosMain {
+        }
+        macosTest {
+      */
+    }
+}
